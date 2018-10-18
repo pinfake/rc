@@ -1,2 +1,11 @@
-#!/usr/bin/env bash	
-docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "useradd -u `id -u` -g `id -g` -d $HOME -s /bin/bash intruder && su intruder"
+#!/usr/bin/env bash
+GROUPID=`id -g`
+USERID=`id -u`
+# TODO:
+# -o: overwrite entrypoint with shell?
+# -i: use useradd and groupadd to impersonate the host machine's user.
+if [ $# -lt 1 ]; then
+    echo "You must specify a docker image to work with!"
+    exit -1;
+fi
+docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "groupadd -f -g $GROUPID intruder && useradd -N -o -u $USERID -g $GROUPID -d $HOME -s /bin/bash intruder && su intruder"
