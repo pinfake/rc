@@ -1,11 +1,27 @@
 #!/usr/bin/env bash
+usage() { echo "Usage: $0 [-o <shell>] [-i] <image>" 1>&2; exit 1; }
 GROUPID=`id -g`
 USERID=`id -u`
 # TODO:
-# -o: overwrite entrypoint with shell?
 # -i: use useradd and groupadd to impersonate the host machine's user.
 if [ $# -lt 1 ]; then
-    echo "You must specify a docker image to work with!"
-    exit -1;
+    usage
 fi
+
+while getopts ":o:i" o; do
+    case "${o}" in
+        o)
+            o=${OPTARG}
+            ((s == 45 || s == 90)) || usage
+            ;;
+        i)
+            i=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
 docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "groupadd -f -g $GROUPID intruder && useradd -N -o -u $USERID -g $GROUPID -d $HOME -s /bin/bash intruder && su intruder"
