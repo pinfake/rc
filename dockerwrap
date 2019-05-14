@@ -11,12 +11,12 @@ usage() { echo "Usage: $0 [-n] <dockerimage>" 1>&2; exit 1; }
 
 while getopts "n" opt
 do
-    case $opt in
-        n) 
+    case ${opt} in
+        n)
 	    NOROOT="bash"
 	    USER="root"
 	    ;;
-        \?) 
+        \?)
 	    usage
             ;;
 	:)
@@ -26,9 +26,15 @@ do
 done
 shift $((OPTIND-1))
 
-if [ "$1" == "" ]; then
+if [[ "$1" == "" ]]; then
     usage
 fi
 
+CMD="$NOROOT"
+
+if [[ -f "./.dockerwrap/init" ]]; then
+    CMD="./.dockerwrap/init && $NOROOT"
+fi
+
 echo "Running as $USER"
-docker run -it --rm -v /var/run/docker.sock:/var/run/docker.sock -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "$NOROOT"
+docker run -it --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "$CMD"
