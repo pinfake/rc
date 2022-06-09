@@ -37,4 +37,4 @@ if [[ -f "./.dockerwrap/init" ]]; then
 fi
 
 echo "Running as $USER"
-docker run -it --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "$CMD"
+docker run -it --rm --network host -v /var/run/docker.sock:/var/run/docker.sock -v /etc/hosts:/etc/hosts -v $HOME:$HOME -v $PWD:$PWD -w $PWD $1 /bin/bash -c "$CMD"
